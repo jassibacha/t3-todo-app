@@ -17,8 +17,8 @@ Auth is via magic link email.
 - [x] Login
 - [x] List Todos
 - [x] Create Todos
-- [ ] Toggle Todo
-- [ ] Delete Todo
+- [x] Toggle Todo
+- [x] Delete Todo
 - [ ] Optimistic updates
 
 # Create T3 App
