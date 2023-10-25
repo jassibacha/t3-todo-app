@@ -14,15 +14,30 @@ function Home() {
         <div className="container flex flex-col items-center justify-center gap-12 px-4 py-16 ">
           <div className="flex flex-col items-center gap-2">
             <div className="flex flex-col items-center justify-center gap-4">
-              <p className="text-center text-l text-white">
-                {sessionData && <span>Logged in as {sessionData.user?.email}</span>}
+              <p className="text-l text-center text-white">
+                {sessionData && (
+                  <span>Logged in as {sessionData.user?.email}</span>
+                )}
               </p>
-              <button
-                className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-                onClick={sessionData ? () => void signOut() : () => void signIn()}
-              >
-                {sessionData ? "Sign out" : "Sign in"}
-              </button>
+
+              {sessionData ? (
+                <button
+                  className="w-full rounded-lg bg-blue-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 sm:w-auto"
+                  onClick={() => void signOut()}
+                >
+                  Sign out
+                </button>
+              ) : (
+                <>
+                  <button
+                    className="w-full rounded-lg bg-blue-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 sm:w-auto"
+                    onClick={() => void signIn("discord")}
+                  >
+                    Sign in with Discord
+                  </button>
+                  {/* Add other providers as separate buttons here, if needed */}
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -32,4 +47,3 @@ function Home() {
 }
 
 export default Home;
-
