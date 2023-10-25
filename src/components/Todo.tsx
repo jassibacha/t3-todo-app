@@ -1,3 +1,4 @@
+import toast from "react-hot-toast";
 import type { Todo } from "../types";
 import { api } from "../utils/api";
 
@@ -11,12 +12,63 @@ export default function Todo({ todo }: TodoProps) {
   const trpc = api.useContext();
 
   const { mutate: doneMutation } = api.todo.toggle.useMutation({
+    onMutate: async ({ id, done }) => {
+      // Cancel any outgoing refetches so they don't overwrite our optimistic update
+      await trpc.todo.all.cancel();
+      // Snapshot previous value
+      const prevTodos = trpc.todo.all.getData();
+
+      // Optimistically delete
+      trpc.todo.all.setData(undefined, (prev) => {
+        if (!prev) return prevTodos;
+        return prev.map((todo) => {
+          if (todo.id === id) {
+            return {
+              ...todo,
+              done,
+            };
+          }
+          return todo;
+        });
+      });
+
+      return { prevTodos };
+    },
+    onSuccess: (err, { done }) => {
+      if (done) {
+        toast.success("Todo completed! 🎉");
+      }
+    },
+    onError: (err, newTodo, context) => {
+      toast.error(
+        `An error occured when setting todo to ${done ? "done" : "undone"}`
+      );
+      trpc.todo.all.setData(undefined, () => context?.prevTodos);
+    },
     onSettled: async () => {
       await trpc.todo.all.invalidate();
     },
   });
 
   const { mutate: deleteMutation } = api.todo.delete.useMutation({
+    onMutate: async (deleteId) => {
+      // Cancel any outgoing refetches so they don't overwrite our optimistic update
+      await trpc.todo.all.cancel();
+      // Snapshot previous value
+      const prevTodos = trpc.todo.all.getData();
+
+      // Optimistically delete
+      trpc.todo.all.setData(undefined, (prev) => {
+        if (!prev) return prevTodos;
+        return prev.filter((todo) => todo.id !== deleteId);
+      });
+
+      return { prevTodos };
+    },
+    onError: (err, newTodo, context) => {
+      toast.error("An error occured when deleting todo");
+      trpc.todo.all.setData(undefined, () => context?.prevTodos);
+    },
     onSettled: async () => {
       await trpc.todo.all.invalidate();
     },
@@ -35,7 +87,10 @@ export default function Todo({ todo }: TodoProps) {
             doneMutation({ id, done: e.target.checked });
           }}
         />
-        <label htmlFor="done" className={`cursor-pointer`}>
+        <label
+          htmlFor={id}
+          className={`cursor-pointer ${done ? "line-through" : ""}`}
+        >
           {text}
         </label>
       </div>

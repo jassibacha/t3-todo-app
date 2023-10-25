@@ -3,6 +3,7 @@ import { api } from "../utils/api";
 import toast from "react-hot-toast";
 import { todoInput } from "../types";
 import { Todo } from "../types";
+import { TRPCUntypedClient } from "@trpc/client";
 
 export default function CreateTodo() {
   const [newTodo, setNewTodo] = useState("");
@@ -10,6 +11,31 @@ export default function CreateTodo() {
   const trpc = api.useContext();
 
   const { mutate } = api.todo.create.useMutation({
+    onMutate: async () => {
+      // Cancel any outgoing refetches so they don't overwrite our optimistic update
+      await trpc.todo.all.cancel();
+      // Snapshot previous value
+      const prevTodos = trpc.todo.all.getData();
+
+      // Optimistically update to the new value
+      trpc.todo.all.setData(undefined, (prev) => {
+        const optimisticTodo = {
+          id: "optimistic-todo-id",
+          text: "placeholder",
+          done: false,
+        };
+        if (!prev) return [optimisticTodo];
+        return [...prev, optimisticTodo];
+      });
+
+      setNewTodo("");
+      return { prevTodos };
+    },
+    onError: (err, newTodo, context) => {
+      toast.error("An error occured when creating this todo");
+      setNewTodo(newTodo);
+      trpc.todo.all.setData(undefined, () => context?.prevTodos);
+    },
     onSettled: async () => {
       await trpc.todo.all.invalidate();
     },
