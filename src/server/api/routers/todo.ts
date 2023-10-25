@@ -13,7 +13,7 @@ export const todoRouter = createTRPCRouter({
 
     console.log(
       "prisma todos",
-      todos.map(({ id, text, done } = { id, text, done }))
+      todos.map(({ id, text, done }) => ({ id, text, done }))
     );
 
     return [
