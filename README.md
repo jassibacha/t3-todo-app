@@ -16,7 +16,7 @@ Auth is via magic link email.
 
 - [x] Login
 - [x] List Todos
-- [ ] Create Todos
+- [x] Create Todos
 - [ ] Toggle Todo
 - [ ] Delete Todo
 - [ ] Optimistic updates

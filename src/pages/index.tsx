@@ -1,6 +1,7 @@
 import Head from "next/head";
 import { signIn, signOut, useSession } from "next-auth/react";
 import Todos from "../components/Todos";
+import CreateTodo from "../components/CreateTodo";
 
 function Home() {
   const { data: sessionData } = useSession();
@@ -18,6 +19,7 @@ function Home() {
               <div className="flex flex-col gap-3 rounded-xl bg-white/10 p-4 text-white">
                 <h3 className="text-xl font-bold">Todos</h3>
                 <Todos />
+                <CreateTodo />
               </div>
             </div>
           )}
